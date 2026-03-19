@@ -27,7 +27,7 @@ An open-source AI gateway and observability platform. Route requests to multiple
 
 1. Clone the repo
 ```bash
-   git clone https://github.com/yourusername/conduit.git
+   git clone https://github.com/liuton23/conduit.git
    cd conduit
 ```
 
