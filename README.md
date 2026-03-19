@@ -1,10 +1,10 @@
 # Conduit
 
-An open-source AI gateway and observability platform. Route requests to multiple LLM providers (Anthropic, OpenAI) through a single endpoint, with automatic logging, cost tracking, and usage analytics.
+An open-source AI gateway and observability platform. Route requests to any LLM provider through a single endpoint, with automatic logging, cost tracking, and usage analytics.
 
 ## Features
 
-- 🔀 **Multi-provider routing** — Anthropic and OpenAI through one API
+- 🔀 **Multi-provider routing** — route requests across any LLM provider through a single endpoint
 - 📊 **Usage tracking** — token counts, cost, and latency per request
 - 🔑 **API key management** — virtual keys with per-project tagging
 - ⚡ **Rate limiting** — Redis-backed request throttling
@@ -17,6 +17,18 @@ An open-source AI gateway and observability platform. Route requests to multiple
 - **Cache** — Redis
 - **Infrastructure** — Docker, Docker Compose
 
+## Status
+
+| Feature | Status |
+|--------|--------|
+| Multi-provider proxy (Anthropic, OpenAI) | ✅ Done |
+| Request logging (tokens, cost, latency) | ✅ Done |
+| Project tagging via `X-Project` header | ✅ Done |
+| Virtual API key management | 🔧 In progress |
+| Rate limiting per key | 🔧 In progress |
+| Dashboard API endpoints | 🔧 In progress |
+| Frontend dashboard | 🔧 In progress |
+
 ## Getting Started
 
 ### Prerequisites
@@ -27,7 +39,7 @@ An open-source AI gateway and observability platform. Route requests to multiple
 
 1. Clone the repo
 ```bash
-   git clone https://github.com/liuton23/conduit.git
+   git clone https://github.com/yourusername/conduit.git
    cd conduit
 ```
 
@@ -68,7 +80,16 @@ client = anthropic.Anthropic(
 )
 ```
 
-All requests are automatically logged and tracked.
+Tag requests by project for granular analytics:
+```python
+client = anthropic.Anthropic(
+    api_key="your-conduit-key",
+    base_url="http://localhost:8000",
+    default_headers={"X-Project": "magsalita"}
+)
+```
+
+All requests are automatically logged with token usage, cost, and latency.
 
 ## Roadmap
 
