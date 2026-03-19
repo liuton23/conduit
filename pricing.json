@@ -1,0 +1,12 @@
+{
+  "_comment": "Pricing per 1K tokens in USD. Last verified: March 2026",
+  "_sources": {
+    "anthropic": "https://anthropic.com/pricing",
+    "openai": "https://platform.openai.com/docs/pricing"
+  },
+  "claude-sonnet-4-6": {"input": 0.003, "output": 0.015},
+  "claude-opus-4-6": {"input": 0.005, "output": 0.025},
+  "claude-haiku-4-5-20251001": {"input": 0.001, "output": 0.005},
+  "gpt-4o": {"input": 0.005, "output": 0.015},
+  "gpt-4o-mini": {"input": 0.00015, "output": 0.0006}
+}
