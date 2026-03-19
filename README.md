@@ -24,6 +24,7 @@ An open-source AI gateway and observability platform. Route requests to any LLM 
 | Multi-provider proxy (Anthropic, OpenAI) | ✅ Done |
 | Request logging (tokens, cost, latency) | ✅ Done |
 | Project tagging via `X-Project` header | ✅ Done |
+| Pricing loaded from `pricing.json` | ✅ Done |
 | Virtual API key management | 🔧 In progress |
 | Rate limiting per key | 🔧 In progress |
 | Dashboard API endpoints | 🔧 In progress |
@@ -90,6 +91,19 @@ client = anthropic.Anthropic(
 ```
 
 All requests are automatically logged with token usage, cost, and latency.
+
+## Updating Pricing
+
+Model pricing is stored in `pricing.json` at the root of the project. To update:
+
+1. Check the latest rates at:
+   - Anthropic: https://anthropic.com/pricing
+   - OpenAI: https://platform.openai.com/docs/pricing
+2. Update the values in `pricing.json`
+3. Update the `_comment` field with the date verified
+4. Restart the server — no redeployment needed
+
+Prices are per 1K tokens in USD.
 
 ## Roadmap
 
