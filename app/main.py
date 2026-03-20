@@ -5,6 +5,7 @@ import app.models.request_log
 import app.models.api_key
 from app.routes.proxy import router as proxy_router
 from app.routes.keys import router as keys_router
+from app.routes.dashboard import router as dashboard_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,6 +22,7 @@ app = FastAPI(
 
 app.include_router(proxy_router)
 app.include_router(keys_router)
+app.include_router(dashboard_router)
 
 @app.get("/health")
 async def health():

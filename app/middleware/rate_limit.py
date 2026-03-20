@@ -1,12 +1,12 @@
 import redis.asyncio as aioredis
 from fastapi import HTTPException
 from app.config import settings
+from app.constants import DEFAULT_RATE_LIMIT_REQUESTS, DEFAULT_RATE_LIMIT_WINDOW
 
 redis_client = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 
-# default limits
-RATE_LIMIT_REQUESTS = 60  # requests
-RATE_LIMIT_WINDOW = 60   # per 60 seconds
+RATE_LIMIT_REQUESTS = DEFAULT_RATE_LIMIT_REQUESTS
+RATE_LIMIT_WINDOW = DEFAULT_RATE_LIMIT_WINDOW
 
 async def check_rate_limit(api_key_id: str):
     redis_key = f"rate_limit:{api_key_id}"
