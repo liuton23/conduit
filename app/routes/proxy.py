@@ -9,6 +9,7 @@ from app.models.api_key import APIKey
 from app.models.enums import get_provider_from_model
 from app.models.schemas import ProxyRequest
 from app.middleware.auth import validate_api_key, security
+from app.middleware.rate_limit import check_rate_limit
 from typing import Optional
 
 router = APIRouter(dependencies=[Depends(security)])
@@ -20,6 +21,9 @@ async def proxy_messages(
     api_key: APIKey = Depends(validate_api_key),
     x_project: Optional[str] = Header(None)
 ):
+    # check rate limit before forwarding
+    await check_rate_limit(api_key.id)
+
     payload = request.model_dump(exclude_none=True)
     payload["model"] = request.model.value
     model = request.model.value
