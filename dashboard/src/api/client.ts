@@ -1,7 +1,9 @@
 import axios from 'axios'
 
 const client = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.PROD
+    ? '/api'
+    : 'http://localhost:8000',
 })
 
 export const setApiKey = (key: string) => {
