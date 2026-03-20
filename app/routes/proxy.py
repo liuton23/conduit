@@ -1,19 +1,23 @@
 from fastapi import APIRouter, Depends, Header
+from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.services.proxy import forward_request
 from app.services.cost import calculate_cost
 from app.models.request_log import RequestLog
+from app.models.api_key import APIKey
 from app.models.enums import get_provider_from_model
 from app.models.schemas import ProxyRequest
+from app.middleware.auth import validate_api_key, security
 from typing import Optional
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(security)])
 
 @router.post("/v1/messages")
 async def proxy_messages(
     request: ProxyRequest,
     db: AsyncSession = Depends(get_db),
+    api_key: APIKey = Depends(validate_api_key),
     x_project: Optional[str] = Header(None)
 ):
     payload = request.model_dump(exclude_none=True)
@@ -30,7 +34,7 @@ async def proxy_messages(
     cost = calculate_cost(model, input_tokens, output_tokens)
 
     log = RequestLog(
-        api_key="dev",
+        api_key=api_key.id,
         model=model,
         provider=provider.value,
         input_tokens=input_tokens,
@@ -39,7 +43,7 @@ async def proxy_messages(
         cost_usd=cost,
         latency_ms=latency_ms,
         status_code=status_code,
-        project=x_project
+        project=x_project or api_key.project
     )
     db.add(log)
     await db.commit()

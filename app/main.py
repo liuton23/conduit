@@ -2,15 +2,15 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db.session import engine, Base
 import app.models.request_log
+import app.models.api_key
 from app.routes.proxy import router as proxy_router
+from app.routes.keys import router as keys_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
-    # shutdown (add cleanup here later if needed)
 
 app = FastAPI(
     title="Conduit",
@@ -20,6 +20,7 @@ app = FastAPI(
 )
 
 app.include_router(proxy_router)
+app.include_router(keys_router)
 
 @app.get("/health")
 async def health():
