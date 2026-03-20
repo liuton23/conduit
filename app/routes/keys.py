@@ -4,6 +4,7 @@ from sqlalchemy import select
 from app.db.session import get_db
 from app.models.api_key import APIKey
 from app.services.keys import generate_api_key
+from app.middleware.auth import validate_api_key
 from pydantic import BaseModel
 from typing import Optional
 
@@ -59,6 +60,14 @@ async def list_api_keys(db: AsyncSession = Depends(get_db)):
         }
         for k in keys
     ]
+
+@router.get("/verify", tags=["API Keys"])
+async def verify_api_key(api_key: APIKey = Depends(validate_api_key)):
+    return {
+        "valid": True,
+        "name": api_key.name,
+        "project": api_key.project
+    }
 
 @router.delete("/{key_id}")
 async def revoke_api_key(key_id: str, db: AsyncSession = Depends(get_db)):
