@@ -12,3 +12,4 @@ class ProxyRequest(BaseModel):
     max_tokens: Optional[int] = 1024
     temperature: Optional[float] = None
     system: Optional[str] = None
+    stream: Optional[bool] = False
