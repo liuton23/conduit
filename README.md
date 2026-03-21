@@ -10,6 +10,7 @@ An open-source AI gateway and observability platform. Route requests to any LLM 
 - ⚡ **Rate limiting** — Redis-backed request throttling per key
 - 📈 **Dashboard** — visualize spend, volume, and latency over time
 - 🌊 **Streaming support** — passthrough streaming with accurate token logging
+- 🚨 **Cost alerts** — per-key monthly spend limits with block or warn actions and optional webhook notifications
 
 ## Tech Stack
 
@@ -133,10 +134,13 @@ Sources:
 
 ## Roadmap
 
+- [ ] Email notifications for cost alerts
 - [ ] Per-key rate limit configuration
 - [ ] Redis caching for key validation
-- [ ] Cost alerts and budget limits
+- [ ] Cost alerts UI in dashboard
 - [ ] OpenTelemetry support
+- [ ] Team support — multiple users per instance
+- [ ] Cloud deployment guide
 
 ## License
 
