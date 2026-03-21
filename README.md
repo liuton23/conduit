@@ -9,6 +9,7 @@ An open-source AI gateway and observability platform. Route requests to any LLM 
 - 🔑 **API key management** — virtual keys with per-project tagging
 - ⚡ **Rate limiting** — Redis-backed request throttling per key
 - 📈 **Dashboard** — visualize spend, volume, and latency over time
+- 🌊 **Streaming support** — passthrough streaming with accurate token logging
 
 ## Tech Stack
 
@@ -38,13 +39,10 @@ Conduit works anywhere you control the code making the API call. Your API keys a
 
 ### What Conduit works with
 
-✅ Your own apps and scripts
-✅ Claude Code (terminal)
-✅ Cursor, Windsurf, VS Code AI extensions
-✅ Any tool that supports a custom base URL and API key
-
-❌ claude.ai (closed product, no API access)
-❌ Claude or ChatGPT mobile apps
+✅ Your own apps and scripts  
+✅ Claude Code (terminal)  
+✅ Cursor, Windsurf, VS Code AI extensions  
+✅ Any tool that supports a custom base URL and API key  
 
 ### API key strategy
 
@@ -80,19 +78,19 @@ Every coding session is now tracked in your Conduit dashboard.
 
 1. Clone the repo
 ```bash
-   git clone https://github.com/yourusername/conduit.git
-   cd conduit
+git clone https://github.com/yourusername/conduit.git
+cd conduit
 ```
 
 2. Set up environment variables
 ```bash
-   cp .env.example .env
+cp .env.example .env
 ```
-   Fill in your API keys in `.env`
+Fill in your API keys in `.env`
 
 3. Start everything
 ```bash
-   docker compose up --build
+docker compose up --build
 ```
 
 4. Open `http://localhost:3000`
@@ -135,7 +133,6 @@ Sources:
 
 ## Roadmap
 
-- [ ] Streaming support
 - [ ] Per-key rate limit configuration
 - [ ] Redis caching for key validation
 - [ ] Cost alerts and budget limits
