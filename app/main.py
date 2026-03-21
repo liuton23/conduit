@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -7,6 +8,8 @@ import app.models.api_key
 from app.routes.proxy import router as proxy_router
 from app.routes.keys import router as keys_router
 from app.routes.dashboard import router as dashboard_router
+
+logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,8 +27,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # dev
-        "http://localhost:3000",  # docker
+        "http://localhost:5173",
+        "http://localhost:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],

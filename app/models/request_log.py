@@ -16,4 +16,4 @@ class RequestLog(Base):
     latency_ms = Column(Float)
     status_code = Column(Integer)
     project = Column(String, nullable=True)
-    created_at = Column(DateTime, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

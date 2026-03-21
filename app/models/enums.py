@@ -14,6 +14,10 @@ class Model(str, Enum):
     GPT_4O = "gpt-4o"
     GPT_4O_MINI = "gpt-4o-mini"
 
+class SpendLimitAction(str, Enum):
+    WARN = "warn"
+    BLOCK = "block"
+
 MODEL_PROVIDER_MAP = {
     Model.CLAUDE_SONNET: Provider.ANTHROPIC,
     Model.CLAUDE_OPUS: Provider.ANTHROPIC,
