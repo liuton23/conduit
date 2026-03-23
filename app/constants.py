@@ -4,6 +4,9 @@ UNTAGGED_PROJECT = "untagged"
 # Date formats
 DATE_FORMAT = "%Y-%m-%d"
 
-# Rate limiting — TODO: move to per-key configuration stored in api_keys table
+# Default rate limiting
 DEFAULT_RATE_LIMIT_REQUESTS = 60
 DEFAULT_RATE_LIMIT_WINDOW = 60
+
+# Redis caching
+API_KEY_CACHE_TTL = 900  # 15 minutes

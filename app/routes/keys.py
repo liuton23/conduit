@@ -1,3 +1,5 @@
+from app.middleware.rate_limit import redis_client
+from app.services.keys import hash_api_key
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -131,6 +133,10 @@ async def revoke_api_key(
 
     key.is_active = False
     await db.commit()
+
+    # invalidate Redis cache
+    cache_key = f"api_key_cache:{key.key_hash}"
+    await redis_client.delete(cache_key)
 
     return {"message": f"Key {key_id} revoked successfully"}
 
