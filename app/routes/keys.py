@@ -4,7 +4,7 @@ from sqlalchemy import select
 from app.db.session import get_db
 from app.models.api_key import APIKey
 from app.services.keys import generate_api_key
-from app.middleware.auth import validate_api_key
+from app.middleware.api_key import validate_api_key
 from app.middleware.session import validate_session
 from app.models.enums import SpendLimitAction
 from pydantic import BaseModel

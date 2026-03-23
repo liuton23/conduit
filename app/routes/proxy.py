@@ -9,7 +9,7 @@ from app.models.request_log import RequestLog
 from app.models.api_key import APIKey
 from app.models.enums import get_provider_from_model
 from app.models.schemas import ProxyRequest
-from app.middleware.auth import validate_api_key, security
+from app.middleware.api_key import validate_api_key, security
 from app.middleware.rate_limit import check_rate_limit
 from app.services.spend import check_spend_limit
 from typing import Optional
