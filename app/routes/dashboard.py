@@ -115,3 +115,47 @@ async def usage_over_time(
         }
         for row in rows
     ]
+
+@router.get("/spend")
+async def get_spend_summary(
+    db: AsyncSession = Depends(get_db),
+    session: str = Depends(validate_session),
+):
+    from app.models.api_key import APIKey
+    from datetime import datetime, timezone
+    from sqlalchemy import update
+
+    now = datetime.now(timezone.utc)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    # get all active keys with spend limits
+    keys_result = await db.execute(
+        select(APIKey).where(
+            APIKey.is_active == True,
+            APIKey.spend_limit_usd != None
+        )
+    )
+    keys = keys_result.scalars().all()
+
+    result = []
+    for key in keys:
+        spend_result = await db.execute(
+            select(func.sum(RequestLog.cost_usd))
+            .where(
+                RequestLog.api_key == key.id,
+                RequestLog.created_at >= month_start
+            )
+        )
+        current_spend = spend_result.scalar() or 0.0
+
+        result.append({
+            "key_id": key.id,
+            "key_name": key.name,
+            "project": key.project,
+            "spend_limit_usd": key.spend_limit_usd,
+            "spend_limit_action": key.spend_limit_action,
+            "current_spend_usd": round(current_spend, 6),
+            "percentage": round((current_spend / key.spend_limit_usd) * 100, 1) if key.spend_limit_usd else 0
+        })
+
+    return result

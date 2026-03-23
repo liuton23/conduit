@@ -1,40 +1,37 @@
 # Conduit
 
-An open-source AI gateway and observability platform. Route requests to any LLM provider through a single endpoint, with automatic logging, cost tracking, and usage analytics.
+An open-source AI gateway and observability platform. Route requests to any LLM provider through a single endpoint, with automatic token logging, cost tracking, and a built-in dashboard.
+
+![Conduit Dashboard](dashboard_sample.jpg)
 
 ## Features
 
 - 🔀 **Multi-provider routing** — route requests across any LLM provider through a single endpoint
-- 📊 **Usage tracking** — token counts, cost, and latency per request
-- 🔑 **API key management** — virtual keys with per-project tagging
-- ⚡ **Rate limiting** — Redis-backed request throttling per key
-- 📈 **Dashboard** — visualize spend, volume, and latency over time
-- 🌊 **Streaming support** — passthrough streaming with accurate token logging
-- 🚨 **Cost alerts** — per-key monthly spend limits with block or warn actions and optional webhook notifications
+- 📊 **Usage tracking** — token counts, cost, and latency per request, per project
+- 🔑 **API key management** — virtual keys with per-project assignment, rate limits, and spend limits
+- ⚡ **Rate limiting** — Redis-backed request throttling with per-key configuration
+- 💰 **Cost alerts** — monthly spend limits per key with block or warn actions and webhook notifications
+- 📈 **Dashboard** — visualize spend, volume, latency, and budget usage in real time
+- 🌊 **Streaming** — passthrough streaming with accurate token and cost logging
+- 🔐 **Auth** — secure dashboard login with hashed access key and session management
 
 ## Tech Stack
 
 - **Backend** — Python, FastAPI, SQLAlchemy, asyncpg
 - **Database** — PostgreSQL
 - **Cache** — Redis
-- **Frontend** — React, TypeScript, Vite, Recharts
+- **Frontend** — React, TypeScript, Vite, Recharts, Lucide
 - **Infrastructure** — Docker, Docker Compose, Nginx
 
 ## Who is this for
 
-Conduit is for developers who embed LLM calls in their apps and want visibility into usage, cost, and performance.
+Conduit is for developers who embed LLM calls in their apps and want visibility into usage, cost, and performance — without sending data to a third party.
 
-The setup is always the same pattern:
-1. Deploy Conduit
-2. Swap your API key and base URL
-3. Tag requests by feature or project
-4. Open the dashboard to monitor
+**Solo developers** building AI-powered apps — track costs per project, set budget limits, get alerted before you overspend.
 
-**Solo developers** building a SaaS with AI features — track costs per feature or customer.
+**Small teams** with multiple AI products — one self-hosted gateway for all LLM traffic, with per-project breakdowns.
 
-**Small teams** with multiple AI-powered products — one place to see all LLM spend across projects.
-
-**Developer tools** like code reviewers or assistants — monitor which users consume the most tokens.
+**Developer tools** like code reviewers or assistants — monitor token usage and enforce rate limits per API key.
 
 Conduit works anywhere you control the code making the API call. Your API keys and prompts never leave your own infrastructure.
 
@@ -45,19 +42,19 @@ Conduit works anywhere you control the code making the API call. Your API keys a
 ✅ Cursor, Windsurf, VS Code AI extensions  
 ✅ Any tool that supports a custom base URL and API key  
 
-### API key strategy
+### One key per project
 
-You can use one Conduit key across multiple apps and use the `X-Project` header to separate them — this is fine for solo developers.
-
-For teams or multiple production apps, create a separate key per app. That way you can revoke access per app independently and get cleaner per-key analytics.
+Each Conduit API key is assigned to a project at creation. All requests made with that key are automatically attributed to that project — no need to pass any extra headers.
 ```python
-# One key, multiple projects via header
+import anthropic
+
 client = anthropic.Anthropic(
     api_key="cdt-your-conduit-key",
-    base_url="http://your-conduit-server",
-    default_headers={"X-Project": "my-app"}
+    base_url="http://your-conduit-server"
 )
 ```
+
+Create separate keys for separate projects. Revoke, rate limit, or set spend limits per key independently.
 
 ### Example — Claude Code
 
@@ -79,7 +76,7 @@ Every coding session is now tracked in your Conduit dashboard.
 
 1. Clone the repo
 ```bash
-git clone https://github.com/yourusername/conduit.git
+git clone https://github.com/liuton23/conduit.git
 cd conduit
 ```
 
@@ -87,7 +84,7 @@ cd conduit
 ```bash
 cp .env.example .env
 ```
-Fill in your API keys in `.env`
+Fill in your Anthropic and OpenAI API keys in `.env`
 
 3. Start everything
 ```bash
@@ -96,33 +93,38 @@ docker compose up --build
 
 4. Open `http://localhost:3000`
 
-That's it. No separate installs needed.
+On first run you'll be prompted to create an access key for the dashboard. Then create your first API key from the **API Keys** page and start routing requests through Conduit.
 
 ## Usage
 
 ### 1. Create an API key
-Log into the dashboard at `http://localhost:3000` and create an API key from the **API Keys** page.
+Log into the dashboard at `http://localhost:3000`, go to **API Keys**, fill in a name and project, and hit **Create Key**.
 
 ### 2. Point your app at Conduit
 ```python
 import anthropic
 
 client = anthropic.Anthropic(
-    api_key="your-conduit-key",
+    api_key="cdt-your-conduit-key",
     base_url="http://localhost:8000"
 )
-```
 
-### 3. Tag requests by project
-```python
-client = anthropic.Anthropic(
-    api_key="your-conduit-key",
-    base_url="http://localhost:8000",
-    default_headers={"X-Project": "my-app"}
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello!"}]
 )
 ```
 
 All requests are automatically logged with token usage, cost, and latency.
+
+### 3. Monitor usage
+
+Open the dashboard to see:
+- Total requests, tokens, cost, and average latency
+- Spend vs budget per key with color-coded progress bars
+- Usage breakdown by model and project
+- Request volume over time
 
 ## Updating Pricing
 
@@ -134,9 +136,9 @@ Sources:
 
 ## Roadmap
 
+- [ ] Proper auth system with username and password
 - [ ] Email notifications for cost alerts
-- [ ] Redis caching for key validation
-- [ ] Cost alerts UI in dashboard
+- [ ] Per-key rate limit configuration UI
 - [ ] OpenTelemetry support
 - [ ] Team support — multiple users per instance
 - [ ] Cloud deployment guide
