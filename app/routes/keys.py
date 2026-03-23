@@ -88,6 +88,8 @@ async def list_api_keys(
             "spend_limit_usd": k.spend_limit_usd,
             "spend_limit_action": k.spend_limit_action,
             "webhook_url": k.webhook_url,
+            "rate_limit_requests": k.rate_limit_requests,
+            "rate_limit_window": k.rate_limit_window,
         }
         for k in keys
     ]

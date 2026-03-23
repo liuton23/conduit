@@ -33,4 +33,9 @@ export interface APIKey {
   is_active: boolean
   created_at: string
   last_used_at: string | null
+  spend_limit_usd: number | null
+  spend_limit_action: string | null
+  webhook_url: string | null
+  rate_limit_requests: number | null
+  rate_limit_window: number | null
 }
