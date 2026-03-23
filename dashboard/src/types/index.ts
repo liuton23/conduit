@@ -29,7 +29,7 @@ export interface UsageOverTime {
 export interface APIKey {
   id: string
   name: string
-  project: string | null
+  project: string
   is_active: boolean
   created_at: string
   last_used_at: string | null

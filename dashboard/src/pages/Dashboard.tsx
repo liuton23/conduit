@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { getStats, getUsageByModel, getUsageOverTime } from '../api/dashboard'
-import type { Stats, UsageByModel, UsageOverTime } from '../types/index'
+import { getStats, getUsageByModel, getUsageOverTime, getUsageByProject } from '../api/dashboard'
+import type { Stats, UsageByModel, UsageOverTime, UsageByProject } from '../types/index'
 import StatCard from '../components/StatCard'
 
 function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [byModel, setByModel] = useState<UsageByModel[]>([])
+  const [byProject, setByProject] = useState<UsageByProject[]>([])
   const [overTime, setOverTime] = useState<UsageOverTime[]>([])
 
   useEffect(() => {
     getStats().then(setStats)
     getUsageByModel().then(setByModel)
+    getUsageByProject().then(setByProject)
     getUsageOverTime().then(setOverTime)
   }, [])
 
@@ -38,28 +40,55 @@ function Dashboard() {
         </ResponsiveContainer>
       </div>
 
-      <div className="table-card">
-        <p className="table-title">Usage by Model</p>
-        <table className="dashboard-table">
-          <thead>
-            <tr>
-              <th>Model</th>
-              <th>Requests</th>
-              <th>Tokens</th>
-              <th>Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            {byModel.map(row => (
-              <tr key={row.model}>
-                <td>{row.model}</td>
-                <td>{row.requests}</td>
-                <td>{row.tokens.toLocaleString()}</td>
-                <td>${row.cost_usd.toFixed(4)}</td>
+      {/* two column tables */}
+      <div className="two-col">
+        <div className="table-card">
+          <p className="table-title">Usage by Model</p>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Requests</th>
+                <th>Tokens</th>
+                <th>Cost</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {byModel.map(row => (
+                <tr key={row.model}>
+                  <td>{row.model}</td>
+                  <td>{row.requests}</td>
+                  <td>{row.tokens.toLocaleString()}</td>
+                  <td>${row.cost_usd.toFixed(4)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="table-card">
+          <p className="table-title">Usage by Project</p>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Requests</th>
+                <th>Tokens</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {byProject.map(row => (
+                <tr key={row.project}>
+                  <td>{row.project}</td>
+                  <td>{row.requests}</td>
+                  <td>{row.tokens.toLocaleString()}</td>
+                  <td>${row.cost_usd.toFixed(4)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

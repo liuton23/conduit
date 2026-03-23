@@ -39,3 +39,9 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}

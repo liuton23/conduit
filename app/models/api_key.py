@@ -10,7 +10,7 @@ class APIKey(Base):
     id = Column(String, primary_key=True, default=lambda: secrets.token_hex(16))
     key_hash = Column(String, unique=True, index=True)
     name = Column(String)
-    project = Column(String, nullable=True)
+    project = Column(String, nullable=False)  # required, one key per project
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_used_at = Column(DateTime(timezone=True), nullable=True)

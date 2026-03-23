@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +12,6 @@ from app.models.schemas import ProxyRequest
 from app.middleware.api_key import validate_api_key, security
 from app.middleware.rate_limit import check_rate_limit
 from app.services.spend import check_spend_limit
-from typing import Optional
 
 router = APIRouter(dependencies=[Depends(security)])
 
@@ -21,7 +20,6 @@ async def proxy_messages(
     request: ProxyRequest,
     db: AsyncSession = Depends(get_db),
     api_key: APIKey = Depends(validate_api_key),
-    x_project: Optional[str] = Header(None)
 ):
     await check_rate_limit(api_key)
     await check_spend_limit(db, api_key)
@@ -30,9 +28,7 @@ async def proxy_messages(
     payload["model"] = request.model.value
     model = request.model.value
     provider = get_provider_from_model(model)
-    project = x_project or api_key.project
 
-    # handle streaming
     if payload.get("stream"):
         async def on_complete(input_tokens: int, output_tokens: int, latency_ms: float):
             total_tokens = input_tokens + output_tokens
@@ -49,7 +45,7 @@ async def proxy_messages(
                     cost_usd=cost,
                     latency_ms=latency_ms,
                     status_code=200,
-                    project=project
+                    project=api_key.project
                 )
                 session.add(log)
                 await session.commit()
@@ -67,7 +63,6 @@ async def proxy_messages(
             }
         )
 
-    # non-streaming
     response_data, status_code, latency_ms = await forward_request(model, payload)
 
     usage = response_data.get("usage", {})
@@ -86,7 +81,7 @@ async def proxy_messages(
         cost_usd=cost,
         latency_ms=latency_ms,
         status_code=status_code,
-        project=project
+        project=api_key.project
     )
     db.add(log)
     await db.commit()

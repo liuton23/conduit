@@ -17,7 +17,7 @@ router = APIRouter(prefix="/keys", tags=["API Keys"])
 
 class CreateKeyRequest(BaseModel):
     name: str
-    project: Optional[str] = None
+    project: str  # required
     spend_limit_usd: Optional[float] = None
     spend_limit_action: Optional[SpendLimitAction] = SpendLimitAction.WARN
     webhook_url: Optional[str] = None
@@ -25,6 +25,7 @@ class CreateKeyRequest(BaseModel):
     rate_limit_window: Optional[int] = None
 
 class UpdateKeyRequest(BaseModel):
+    project: Optional[str] = None
     spend_limit_usd: Optional[float] = None
     spend_limit_action: Optional[SpendLimitAction] = None
     webhook_url: Optional[str] = None
@@ -34,7 +35,7 @@ class UpdateKeyRequest(BaseModel):
 class CreateKeyResponse(BaseModel):
     id: str
     name: str
-    project: Optional[str]
+    project: str
     key: str
     message: str
 
@@ -107,6 +108,8 @@ async def update_api_key(
     if not key:
         raise HTTPException(status_code=404, detail="Key not found")
 
+    if request.project is not None:
+        key.project = request.project
     if request.spend_limit_usd is not None:
         key.spend_limit_usd = request.spend_limit_usd
     if request.spend_limit_action is not None:

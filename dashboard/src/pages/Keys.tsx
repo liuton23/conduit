@@ -6,6 +6,7 @@ function Keys() {
   const [keys, setKeys] = useState<APIKey[]>([])
   const [name, setName] = useState('')
   const [project, setProject] = useState('')
+  const [editProject, setEditProject] = useState('')
   const [spendLimit, setSpendLimit] = useState<number | ''>('')
   const [spendLimitAction, setSpendLimitAction] = useState('warn')
   const [rateLimitRequests, setRateLimitRequests] = useState<number | ''>('')
@@ -27,12 +28,11 @@ function Keys() {
   useEffect(() => {
     fetchKeys()
   }, [])
-
   const createKey = async () => {
-    if (!name) return
+    if (!name || !project) return
     const res = await client.post('/keys', {
       name,
-      project: project || null,
+      project,
       spend_limit_usd: spendLimit === '' ? null : spendLimit,
       spend_limit_action: spendLimitAction,
       rate_limit_requests: rateLimitRequests === '' ? null : rateLimitRequests,
@@ -57,6 +57,7 @@ function Keys() {
 
   const openEdit = (key: APIKey) => {
     setEditingKey(key)
+    setEditProject(key.project)
     setEditSpendLimit(key.spend_limit_usd ?? '')
     setEditSpendLimitAction(key.spend_limit_action ?? 'warn')
     setEditRateLimitRequests(key.rate_limit_requests ?? '')
@@ -67,6 +68,7 @@ function Keys() {
   const saveEdit = async () => {
     if (!editingKey) return
     await client.patch(`/keys/${editingKey.id}`, {
+      project: editProject || null,
       spend_limit_usd: editSpendLimit === '' ? null : editSpendLimit,
       spend_limit_action: editSpendLimitAction,
       rate_limit_requests: editRateLimitRequests === '' ? null : editRateLimitRequests,
@@ -93,7 +95,7 @@ function Keys() {
           />
           <input
             className="input"
-            placeholder="Project (optional)"
+            placeholder="Project *"
             value={project}
             onChange={e => setProject(e.target.value)}
           />
@@ -141,7 +143,14 @@ function Keys() {
             value={webhookUrl}
             onChange={e => setWebhookUrl(e.target.value)}
           />
-          <button className="btn-primary" onClick={createKey}>Create Key</button>
+          <button
+            className="btn-primary"
+            onClick={createKey}
+            disabled={!name || !project}
+            style={{ opacity: !name || !project ? 0.5 : 1 }}
+          >
+            Create Key
+          </button>
         </div>
 
         {newKey && (
@@ -192,6 +201,15 @@ function Keys() {
             <div className="form-row">
               <input
                 className="input"
+                placeholder="Project *"
+                value={editProject}
+                onChange={e => setEditProject(e.target.value)}
+              />
+            </div>
+
+            <div className="form-row">
+              <input
+                className="input"
                 type="number"
                 placeholder="Rate limit (requests)"
                 value={editRateLimitRequests}
@@ -235,7 +253,14 @@ function Keys() {
 
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setEditingKey(null)}>Cancel</button>
-              <button className="btn-primary" onClick={saveEdit}>Save Changes</button>
+              <button
+                className="btn-primary"
+                onClick={saveEdit}
+                disabled={!editProject}
+                style={{ opacity: !editProject ? 0.5 : 1 }}
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </div>
