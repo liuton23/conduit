@@ -21,11 +21,15 @@ class CreateKeyRequest(BaseModel):
     spend_limit_usd: Optional[float] = None
     spend_limit_action: Optional[SpendLimitAction] = SpendLimitAction.WARN
     webhook_url: Optional[str] = None
+    rate_limit_requests: Optional[int] = None
+    rate_limit_window: Optional[int] = None
 
 class UpdateKeyRequest(BaseModel):
     spend_limit_usd: Optional[float] = None
     spend_limit_action: Optional[SpendLimitAction] = None
     webhook_url: Optional[str] = None
+    rate_limit_requests: Optional[int] = None
+    rate_limit_window: Optional[int] = None
 
 class CreateKeyResponse(BaseModel):
     id: str
@@ -47,7 +51,9 @@ async def create_api_key(
         key_hash=hashed,
         spend_limit_usd=request.spend_limit_usd,
         spend_limit_action=request.spend_limit_action.value if request.spend_limit_action else SpendLimitAction.WARN.value,
-        webhook_url=request.webhook_url
+        webhook_url=request.webhook_url,
+        rate_limit_requests=request.rate_limit_requests,
+        rate_limit_window=request.rate_limit_window
     )
     
     db.add(api_key)
@@ -103,6 +109,10 @@ async def update_api_key(
         key.spend_limit_action = request.spend_limit_action
     if request.webhook_url is not None:
         key.webhook_url = request.webhook_url
+    if request.rate_limit_requests is not None:
+        key.rate_limit_requests = request.rate_limit_requests
+    if request.rate_limit_window is not None:
+        key.rate_limit_window = request.rate_limit_window
 
     await db.commit()
     return {"message": "Key updated successfully"}

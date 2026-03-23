@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Float
+from sqlalchemy import Column, String, Boolean, DateTime, Float, Integer
 from sqlalchemy.sql import func
 from app.db.session import Base
 from app.models.enums import SpendLimitAction
@@ -17,5 +17,9 @@ class APIKey(Base):
 
     # spend limits
     spend_limit_usd = Column(Float, nullable=True)
-    spend_limit_action = Column(String, default=SpendLimitAction.WARN) # warn or block
+    spend_limit_action = Column(String, default=SpendLimitAction.WARN.value)
     webhook_url = Column(String, nullable=True)
+
+    # rate limits
+    rate_limit_requests = Column(Integer, nullable=True)
+    rate_limit_window = Column(Integer, nullable=True)

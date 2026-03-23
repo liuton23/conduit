@@ -135,7 +135,6 @@ Sources:
 ## Roadmap
 
 - [ ] Email notifications for cost alerts
-- [ ] Per-key rate limit configuration
 - [ ] Redis caching for key validation
 - [ ] Cost alerts UI in dashboard
 - [ ] OpenTelemetry support

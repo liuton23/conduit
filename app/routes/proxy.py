@@ -23,7 +23,7 @@ async def proxy_messages(
     api_key: APIKey = Depends(validate_api_key),
     x_project: Optional[str] = Header(None)
 ):
-    await check_rate_limit(api_key.id)
+    await check_rate_limit(api_key)
     await check_spend_limit(db, api_key)
 
     payload = request.model_dump(exclude_none=True)
