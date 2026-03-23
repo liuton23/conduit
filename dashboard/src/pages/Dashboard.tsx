@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { getStats, getUsageByModel, getUsageOverTime, getUsageByProject } from '../api/dashboard'
+import { getStats, getUsageByModel, getUsageOverTime, getUsageByProject, getSpendSummary } from '../api/dashboard'
 import type { Stats, UsageByModel, UsageOverTime, UsageByProject } from '../types/index'
 import StatCard from '../components/StatCard'
+import SpendAlert from '../components/SpendAlert'
 
 function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [byModel, setByModel] = useState<UsageByModel[]>([])
   const [byProject, setByProject] = useState<UsageByProject[]>([])
   const [overTime, setOverTime] = useState<UsageOverTime[]>([])
+  const [spendSummary, setSpendSummary] = useState([])
 
   useEffect(() => {
     getStats().then(setStats)
     getUsageByModel().then(setByModel)
     getUsageByProject().then(setByProject)
     getUsageOverTime().then(setOverTime)
+    getSpendSummary().then(setSpendSummary)
   }, [])
 
   return (
@@ -28,6 +31,8 @@ function Dashboard() {
         <StatCard title="Avg Latency" value={stats ? `${stats.avg_latency_ms.toFixed(0)}ms` : '-'} />
       </div>
 
+      <SpendAlert items={spendSummary} />
+
       <div className="chart-card">
         <p className="chart-title">Requests Over Time</p>
         <ResponsiveContainer width="100%" height={200}>
@@ -40,7 +45,6 @@ function Dashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* two column tables */}
       <div className="two-col">
         <div className="table-card">
           <p className="table-title">Usage by Model</p>

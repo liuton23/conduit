@@ -8,3 +8,21 @@
   font-weight: 600;
   margin-bottom: 24px;
 }
+
+.new-key-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.new-key-text {
+  word-break: break-all;
+  flex: 1;
+}
+
+.new-key-warning {
+  color: #888;
+  font-size: 12px;
+  margin-top: 8px;
+}

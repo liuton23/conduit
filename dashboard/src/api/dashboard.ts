@@ -20,3 +20,8 @@ export const getUsageOverTime = async (): Promise<UsageOverTime[]> => {
   const res = await client.get('/dashboard/usage/over-time')
   return res.data
 }
+
+export const getSpendSummary = async () => {
+  const res = await client.get('/dashboard/spend')
+  return res.data
+}

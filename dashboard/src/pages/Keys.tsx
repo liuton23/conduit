@@ -19,6 +19,7 @@ function Keys() {
   const [editRateLimitRequests, setEditRateLimitRequests] = useState<number | ''>('')
   const [editRateLimitWindow, setEditRateLimitWindow] = useState<number | ''>('')
   const [editWebhookUrl, setEditWebhookUrl] = useState('')
+  const [copied, setCopied] = useState(false);
 
   const fetchKeys = async () => {
     const res = await client.get('/keys')
@@ -77,6 +78,12 @@ function Keys() {
     })
     setEditingKey(null)
     fetchKeys()
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(newKey!)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -155,7 +162,19 @@ function Keys() {
 
         {newKey && (
           <div className="new-key-banner">
-            ⚠️ Copy this key now — it won't be shown again: {newKey}
+            <div className="new-key-content">
+              <span className="new-key-text">{newKey}</span>
+              <button
+                onClick={handleCopy}
+                className="btn-secondary"
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <p className="new-key-warning">
+              ⚠️ Store this key safely — it won't be shown again.
+            </p>
           </div>
         )}
       </div>
