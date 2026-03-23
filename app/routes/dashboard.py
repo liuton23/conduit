@@ -1,20 +1,18 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 from app.db.session import get_db
 from app.models.request_log import RequestLog
-from app.middleware.auth import validate_api_key, security
-from app.models.api_key import APIKey
-from fastapi import Depends
-from typing import Optional
+from app.middleware.session import validate_session
 from app.constants import UNTAGGED_PROJECT, DATE_FORMAT
+from typing import Optional
 
-router = APIRouter(prefix="/dashboard", tags=["Dashboard"], dependencies=[Depends(security)])
+router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 @router.get("/stats")
 async def get_stats(
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    session: str = Depends(validate_session),
     project: Optional[str] = Query(None)
 ):
     query = select(
@@ -22,7 +20,7 @@ async def get_stats(
         func.sum(RequestLog.total_tokens).label("total_tokens"),
         func.sum(RequestLog.cost_usd).label("total_cost"),
         func.avg(RequestLog.latency_ms).label("avg_latency_ms"),
-    ).where(RequestLog.api_key == api_key.id)
+    )
 
     if project:
         query = query.where(RequestLog.project == project)
@@ -40,7 +38,7 @@ async def get_stats(
 @router.get("/usage/by-model")
 async def usage_by_model(
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    session: str = Depends(validate_session),
 ):
     result = await db.execute(
         select(
@@ -49,7 +47,6 @@ async def usage_by_model(
             func.sum(RequestLog.total_tokens).label("tokens"),
             func.sum(RequestLog.cost_usd).label("cost"),
         )
-        .where(RequestLog.api_key == api_key.id)
         .group_by(RequestLog.model)
         .order_by(desc("cost"))
     )
@@ -68,7 +65,7 @@ async def usage_by_model(
 @router.get("/usage/by-project")
 async def usage_by_project(
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    session: str = Depends(validate_session),
 ):
     result = await db.execute(
         select(
@@ -77,7 +74,6 @@ async def usage_by_project(
             func.sum(RequestLog.total_tokens).label("tokens"),
             func.sum(RequestLog.cost_usd).label("cost"),
         )
-        .where(RequestLog.api_key == api_key.id)
         .group_by(RequestLog.project)
         .order_by(desc("cost"))
     )
@@ -96,7 +92,7 @@ async def usage_by_project(
 @router.get("/usage/over-time")
 async def usage_over_time(
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key),
+    session: str = Depends(validate_session),
 ):
     result = await db.execute(
         select(
@@ -105,7 +101,6 @@ async def usage_over_time(
             func.sum(RequestLog.total_tokens).label("tokens"),
             func.sum(RequestLog.cost_usd).label("cost"),
         )
-        .where(RequestLog.api_key == api_key.id)
         .group_by("date")
         .order_by("date")
     )

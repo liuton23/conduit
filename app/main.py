@@ -5,9 +5,11 @@ from contextlib import asynccontextmanager
 from app.db.session import engine, Base
 import app.models.request_log
 import app.models.api_key
+import app.models.user
 from app.routes.proxy import router as proxy_router
 from app.routes.keys import router as keys_router
 from app.routes.dashboard import router as dashboard_router
+from app.routes.auth import router as auth_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,6 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(proxy_router)
 app.include_router(keys_router)
 app.include_router(dashboard_router)

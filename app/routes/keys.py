@@ -1,16 +1,14 @@
-from app.middleware.rate_limit import redis_client
-from app.services.keys import hash_api_key
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.session import get_db
 from app.models.api_key import APIKey
 from app.services.keys import generate_api_key
-from app.middleware.auth import validate_api_key, security
+from app.middleware.auth import validate_api_key
+from app.middleware.session import validate_session
 from app.models.enums import SpendLimitAction
 from pydantic import BaseModel
 from typing import Optional
-from fastapi.security import HTTPBearer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,10 +38,11 @@ class CreateKeyResponse(BaseModel):
     key: str
     message: str
 
-@router.post("", response_model=CreateKeyResponse)
+@router.post("")
 async def create_api_key(
     request: CreateKeyRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    session: str = Depends(validate_session)
 ):
     raw_key, hashed = generate_api_key()
 
@@ -57,7 +56,8 @@ async def create_api_key(
         rate_limit_requests=request.rate_limit_requests,
         rate_limit_window=request.rate_limit_window
     )
-    
+
+    logger.info(f"Creating key with spend_limit_usd: {request.spend_limit_usd}")
     db.add(api_key)
     await db.commit()
     await db.refresh(api_key)
@@ -70,10 +70,10 @@ async def create_api_key(
         message="Store this key safely — it won't be shown again."
     )
 
-@router.get("", dependencies=[Depends(security)])
+@router.get("")
 async def list_api_keys(
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key)
+    session: str = Depends(validate_session)
 ):
     result = await db.execute(select(APIKey).where(APIKey.is_active == True))
     keys = result.scalars().all()
@@ -94,12 +94,12 @@ async def list_api_keys(
         for k in keys
     ]
 
-@router.patch("/{key_id}", dependencies=[Depends(security)])
+@router.patch("/{key_id}")
 async def update_api_key(
     key_id: str,
     request: UpdateKeyRequest,
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key)
+    session: str = Depends(validate_session)
 ):
     result = await db.execute(select(APIKey).where(APIKey.id == key_id))
     key = result.scalar_one_or_none()
@@ -110,7 +110,7 @@ async def update_api_key(
     if request.spend_limit_usd is not None:
         key.spend_limit_usd = request.spend_limit_usd
     if request.spend_limit_action is not None:
-        key.spend_limit_action = request.spend_limit_action
+        key.spend_limit_action = request.spend_limit_action.value
     if request.webhook_url is not None:
         key.webhook_url = request.webhook_url
     if request.rate_limit_requests is not None:
@@ -121,11 +121,11 @@ async def update_api_key(
     await db.commit()
     return {"message": "Key updated successfully"}
 
-@router.delete("/{key_id}", dependencies=[Depends(security)])
+@router.delete("/{key_id}")
 async def revoke_api_key(
     key_id: str,
     db: AsyncSession = Depends(get_db),
-    api_key: APIKey = Depends(validate_api_key)
+    session: str = Depends(validate_session)
 ):
     result = await db.execute(select(APIKey).where(APIKey.id == key_id))
     key = result.scalar_one_or_none()
@@ -136,13 +136,13 @@ async def revoke_api_key(
     key.is_active = False
     await db.commit()
 
-    # invalidate Redis cache
+    from app.middleware.rate_limit import redis_client
     cache_key = f"api_key_cache:{key.key_hash}"
     await redis_client.delete(cache_key)
 
     return {"message": f"Key {key_id} revoked successfully"}
 
-@router.get("/verify", tags=["API Keys"])
+@router.get("/verify")
 async def verify_api_key(api_key: APIKey = Depends(validate_api_key)):
     return {
         "valid": True,

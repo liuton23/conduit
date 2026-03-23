@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { logout } from '../api/client'
 
 const links = [
   { to: '/', label: '📊 Dashboard' },
@@ -6,6 +7,11 @@ const links = [
 ]
 
 function Sidebar() {
+  const handleLogout = async () => {
+    await logout()
+    window.location.reload()
+  }
+
   return (
     <div style={{
       width: '220px',
@@ -43,6 +49,26 @@ function Sidebar() {
           {link.label}
         </NavLink>
       ))}
+
+      {/* logout at bottom */}
+      <div style={{ marginTop: 'auto' }}>
+        <button
+          onClick={handleLogout}
+          style={{
+            width: '100%',
+            background: 'transparent',
+            border: '1px solid #2a2a2a',
+            borderRadius: '6px',
+            padding: '10px 12px',
+            color: '#888',
+            fontSize: '14px',
+            cursor: 'pointer',
+            textAlign: 'left',
+          }}
+        >
+          🚪 Logout
+        </button>
+      </div>
     </div>
   )
 }

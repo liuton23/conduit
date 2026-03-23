@@ -1,36 +1,52 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import Keys from './pages/Keys'
 import Login from './pages/Login'
-import { setApiKey, validateApiKey } from './api/client'
+import { getAuthStatus, verifySession } from './api/client'
 
 function App() {
   const [authed, setAuthed] = useState(false)
+  const [isRegistered, setIsRegistered] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('conduit_key')
-    if (cached) {
-      validateApiKey(cached).then(valid => {
-        if (valid) {
-          setApiKey(cached)
-          setAuthed(true)
-        } else {
-          sessionStorage.removeItem('conduit_key')
-        }
-      })
+    const init = async () => {
+      const [status, sessionValid] = await Promise.all([
+        getAuthStatus(),
+        verifySession()
+      ])
+      setIsRegistered(status.registered)
+      setAuthed(sessionValid)
+      setLoading(false)
     }
+    init()
   }, [])
 
-  const handleLogin = (key: string) => {
-    setApiKey(key)
-    sessionStorage.setItem('conduit_key', key)
-    setAuthed(true)
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: '#0f0f0f',
+        color: '#888',
+        fontSize: '14px'
+      }}>
+        Loading...
+      </div>
+    )
   }
 
   if (!authed) {
-    return <Login onLogin={handleLogin} />
+    return (
+      <Login
+        onLogin={() => setAuthed(true)}
+        isRegistered={isRegistered}
+      />
+    )
   }
 
   return (

@@ -1,44 +1,33 @@
 import { useState } from 'react'
-import { validateApiKey } from '../api/client'
-import client from '../api/client'
+import { login, register } from '../api/client'
 import './Login.css'
 
 interface Props {
-  onLogin: (key: string) => void
+  onLogin: () => void
+  isRegistered: boolean
 }
 
-function Login({ onLogin }: Props) {
-  const [view, setView] = useState<'login' | 'create'>('login')
-  const [key, setKey] = useState('')
-  const [name, setName] = useState('')
+function Login({ onLogin, isRegistered }: Props) {
+  const [accessKey, setAccessKey] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [newKey, setNewKey] = useState('')
 
-  const handleLogin = async () => {
-    if (!key) return
+  const handleSubmit = async () => {
+    if (!accessKey) return
     setLoading(true)
     setError('')
-    const valid = await validateApiKey(key)
-    if (!valid) {
-      setError('Invalid or revoked API key')
-      setLoading(false)
-      return
-    }
-    onLogin(key)
-    setLoading(false)
-  }
 
-  const handleCreate = async () => {
-    if (!name) return
-    setLoading(true)
-    setError('')
     try {
-      const res = await client.post('/keys', { name })
-      setNewKey(res.data.key)
+      if (isRegistered) {
+        await login(accessKey)
+      } else {
+        await register(accessKey)
+      }
+      onLogin()
     } catch {
-      setError('Failed to create key')
+      setError(isRegistered ? 'Invalid access key' : 'Registration failed')
     }
+
     setLoading(false)
   }
 
@@ -46,71 +35,40 @@ function Login({ onLogin }: Props) {
     <div className="login-page">
       <div className="login-card">
         <h1>Conduit</h1>
+        <p className="login-subtitle">
+          {isRegistered
+            ? 'Enter your access key to continue'
+            : 'Create an access key to get started'
+          }
+        </p>
 
-        <div className="login-tabs">
-          <button
-            className={`login-tab ${view === 'login' ? 'active' : ''}`}
-            onClick={() => { setView('login'); setError('') }}
-          >
-            Sign in
-          </button>
-          <button
-            className={`login-tab ${view === 'create' ? 'active' : ''}`}
-            onClick={() => { setView('create'); setError('') }}
-          >
-            Create key
-          </button>
-        </div>
+        <input
+          className={`login-input ${error ? 'error' : ''}`}
+          type="password"
+          placeholder="Access key"
+          value={accessKey}
+          onChange={e => setAccessKey(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+        />
 
-        {view === 'login' && (
-          <>
-            <p className="login-subtitle">Enter your API key to continue</p>
-            <input
-              className={`login-input ${error ? 'error' : ''}`}
-              type="password"
-              placeholder="cdt-..."
-              value={key}
-              onChange={e => setKey(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            />
-            {error && <p className="login-error">{error}</p>}
-            <button className="login-btn" onClick={handleLogin} disabled={loading}>
-              {loading ? 'Validating...' : 'Continue'}
-            </button>
-          </>
+        {!isRegistered && (
+          <p style={{ color: '#888', fontSize: '12px', marginBottom: '8px' }}>
+            Minimum 8 characters. Store this safely — you'll need it to log in.
+          </p>
         )}
 
-        {view === 'create' && (
-          <>
-            <p className="login-subtitle">Create your first API key to get started</p>
+        {error && <p className="login-error">{error}</p>}
 
-            {!newKey ? (
-              <>
-                <input
-                  className={`login-input ${error ? 'error' : ''}`}
-                  placeholder="Key name (e.g. my-app)"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleCreate()}
-                />
-                {error && <p className="login-error">{error}</p>}
-                <button className="login-btn" onClick={handleCreate} disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Key'}
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="login-subtitle">
-                  Your key has been created. Copy it now — it won't be shown again.
-                </p>
-                <div className="new-key-banner">{newKey}</div>
-                <button className="login-btn" onClick={() => onLogin(newKey)}>
-                  Continue to Dashboard
-                </button>
-              </>
-            )}
-          </>
-        )}
+        <button
+          className="login-btn"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading
+            ? (isRegistered ? 'Signing in...' : 'Creating...')
+            : (isRegistered ? 'Sign in' : 'Create access key')
+          }
+        </button>
       </div>
     </div>
   )
