@@ -1,0 +1,41 @@
+.dashboard-page {
+  padding: 32px;
+  flex: 1;
+}
+
+.dashboard-page h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.table-title {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

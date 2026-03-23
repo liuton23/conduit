@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import client from '../api/client'
 import type { APIKey } from '../types/index'
-import './Keys.css'
 
 function Keys() {
   const [keys, setKeys] = useState<APIKey[]>([])

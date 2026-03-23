@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { login, register } from '../api/client'
-import './Login.css'
 
 interface Props {
   onLogin: () => void

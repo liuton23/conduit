@@ -48,10 +48,9 @@ function App() {
       />
     )
   }
-
   return (
     <BrowserRouter>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div className="app">
         <Sidebar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
