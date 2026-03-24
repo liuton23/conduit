@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Float, Integer
+from sqlalchemy import Column, ForeignKey, String, Boolean, DateTime, Float, Integer
 from sqlalchemy.sql import func
 from app.db.session import Base
 from app.models.enums import SpendLimitAction
@@ -8,6 +8,7 @@ class APIKey(Base):
     __tablename__ = "api_keys"
 
     id = Column(String, primary_key=True, default=lambda: secrets.token_hex(16))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
     key_hash = Column(String, unique=True, index=True)
     name = Column(String)
     project = Column(String, nullable=False)  # required, one key per project

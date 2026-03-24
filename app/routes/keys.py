@@ -43,11 +43,12 @@ class CreateKeyResponse(BaseModel):
 async def create_api_key(
     request: CreateKeyRequest,
     db: AsyncSession = Depends(get_db),
-    session: str = Depends(validate_session)
+    user_id: str = Depends(validate_session)
 ):
     raw_key, hashed = generate_api_key()
 
     api_key = APIKey(
+        user_id=user_id,
         name=request.name,
         project=request.project,
         key_hash=hashed,
@@ -58,7 +59,6 @@ async def create_api_key(
         rate_limit_window=request.rate_limit_window
     )
 
-    logger.info(f"Creating key with spend_limit_usd: {request.spend_limit_usd}")
     db.add(api_key)
     await db.commit()
     await db.refresh(api_key)
@@ -74,9 +74,14 @@ async def create_api_key(
 @router.get("")
 async def list_api_keys(
     db: AsyncSession = Depends(get_db),
-    session: str = Depends(validate_session)
+    user_id: str = Depends(validate_session)
 ):
-    result = await db.execute(select(APIKey).where(APIKey.is_active == True))
+    result = await db.execute(
+        select(APIKey).where(
+            APIKey.is_active == True,
+            APIKey.user_id == user_id
+        )
+    )
     keys = result.scalars().all()
     return [
         {
@@ -100,9 +105,11 @@ async def update_api_key(
     key_id: str,
     request: UpdateKeyRequest,
     db: AsyncSession = Depends(get_db),
-    session: str = Depends(validate_session)
+    user_id: str = Depends(validate_session)
 ):
-    result = await db.execute(select(APIKey).where(APIKey.id == key_id))
+    result = await db.execute(
+        select(APIKey).where(APIKey.id == key_id, APIKey.user_id == user_id)
+    )
     key = result.scalar_one_or_none()
 
     if not key:
@@ -128,9 +135,11 @@ async def update_api_key(
 async def revoke_api_key(
     key_id: str,
     db: AsyncSession = Depends(get_db),
-    session: str = Depends(validate_session)
+    user_id: str = Depends(validate_session)
 ):
-    result = await db.execute(select(APIKey).where(APIKey.id == key_id))
+    result = await db.execute(
+        select(APIKey).where(APIKey.id == key_id, APIKey.user_id == user_id)
+    )
     key = result.scalar_one_or_none()
 
     if not key:

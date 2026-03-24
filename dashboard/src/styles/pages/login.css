@@ -74,3 +74,29 @@
   background: #4a4a4a;
   cursor: not-allowed;
 }
+
+.password-requirements {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #0f0f0f;
+  border-radius: 6px;
+  border: 1px solid #2a2a2a;
+}
+
+.password-req {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.password-req.met {
+  color: #22c55e;
+}
+
+.password-req.unmet {
+  color: #888;
+}
