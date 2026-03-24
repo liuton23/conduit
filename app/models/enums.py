@@ -3,6 +3,8 @@ from enum import Enum
 class Provider(str, Enum):
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
+    MISTRAL = "mistral"
+    DEEPSEEK = "deepseek"
 
 class Model(str, Enum):
     # Anthropic
