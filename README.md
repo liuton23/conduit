@@ -42,9 +42,6 @@ Conduit works anywhere you control the code making the API call. Your API keys a
 ✅ Cursor, Windsurf, VS Code AI extensions  
 ✅ Any tool that supports a custom base URL and API key  
 
-❌ claude.ai (closed product, no API access)  
-❌ Claude or ChatGPT mobile apps  
-
 ### One key per project
 
 Each Conduit API key is assigned to a project at creation. All requests made with that key are automatically attributed to that project — no headers needed.
