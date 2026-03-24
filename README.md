@@ -13,11 +13,11 @@ An open-source AI gateway and observability platform. Route requests to any LLM 
 - 💰 **Cost alerts** — monthly spend limits per key with block or warn actions and webhook notifications
 - 📈 **Dashboard** — visualize spend, volume, latency, and budget usage in real time
 - 🌊 **Streaming** — passthrough streaming with accurate token and cost logging
-- 🔐 **Auth** — secure dashboard login with hashed access key and session management
+- 🔐 **Auth** — email and password registration with session management, keys scoped per user
 
 ## Tech Stack
 
-- **Backend** — Python, FastAPI, SQLAlchemy, asyncpg
+- **Backend** — Python, FastAPI, SQLAlchemy, asyncpg, bcrypt
 - **Database** — PostgreSQL
 - **Cache** — Redis
 - **Frontend** — React, TypeScript, Vite, Recharts, Lucide
@@ -42,9 +42,12 @@ Conduit works anywhere you control the code making the API call. Your API keys a
 ✅ Cursor, Windsurf, VS Code AI extensions  
 ✅ Any tool that supports a custom base URL and API key  
 
+❌ claude.ai (closed product, no API access)  
+❌ Claude or ChatGPT mobile apps  
+
 ### One key per project
 
-Each Conduit API key is assigned to a project at creation. All requests made with that key are automatically attributed to that project — no need to pass any extra headers.
+Each Conduit API key is assigned to a project at creation. All requests made with that key are automatically attributed to that project — no headers needed.
 ```python
 import anthropic
 
@@ -76,7 +79,7 @@ Every coding session is now tracked in your Conduit dashboard.
 
 1. Clone the repo
 ```bash
-git clone https://github.com/liuton23/conduit.git
+git clone https://github.com/yourusername/conduit.git
 cd conduit
 ```
 
@@ -93,14 +96,17 @@ docker compose up --build
 
 4. Open `http://localhost:3000`
 
-On first run you'll be prompted to create an access key for the dashboard. Then create your first API key from the **API Keys** page and start routing requests through Conduit.
+On first run you'll be prompted to create an account. Then create your first API key from the **API Keys** page and start routing requests through Conduit.
 
 ## Usage
 
-### 1. Create an API key
-Log into the dashboard at `http://localhost:3000`, go to **API Keys**, fill in a name and project, and hit **Create Key**.
+### 1. Create an account
+Open `http://localhost:3000` and register with your email and password.
 
-### 2. Point your app at Conduit
+### 2. Create an API key
+Go to **API Keys**, fill in a name and project, and hit **Create Key**. Optionally set rate limits and spend limits per key.
+
+### 3. Point your app at Conduit
 ```python
 import anthropic
 
@@ -118,7 +124,7 @@ response = client.messages.create(
 
 All requests are automatically logged with token usage, cost, and latency.
 
-### 3. Monitor usage
+### 4. Monitor usage
 
 Open the dashboard to see:
 - Total requests, tokens, cost, and average latency
@@ -136,11 +142,11 @@ Sources:
 
 ## Roadmap
 
-- [ ] Proper auth system with username and password
+- [ ] Google Gemini support (requires request/response format translation)
 - [ ] Email notifications for cost alerts
-- [ ] Per-key rate limit configuration UI
-- [ ] OpenTelemetry support
+- [ ] Email verification on registration
 - [ ] Team support — multiple users per instance
+- [ ] OpenTelemetry support
 - [ ] Cloud deployment guide
 
 ## License
