@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 import httpx
 import time
 import json
@@ -11,15 +12,36 @@ PROVIDER_URLS = {
 
 def build_headers(provider: Provider) -> dict:
     if provider == Provider.ANTHROPIC:
+        if not settings.ANTHROPIC_API_KEY:
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY is not configured")
         return {
             "x-api-key": settings.ANTHROPIC_API_KEY,
             "anthropic-version": "2023-06-01",
             "content-type": "application/json",
         }
-    return {
-        "Authorization": f"Bearer {settings.OPENAI_API_KEY}",
-        "content-type": "application/json",
-    }
+    elif provider == Provider.OPENAI:
+        if not settings.OPENAI_API_KEY:
+            raise HTTPException(status_code=400, detail="OPENAI_API_KEY is not configured")
+        return {
+            "Authorization": f"Bearer {settings.OPENAI_API_KEY}",
+            "content-type": "application/json",
+        }
+    elif provider == Provider.MISTRAL:
+        if not settings.MISTRAL_API_KEY:
+            raise HTTPException(status_code=400, detail="MISTRAL_API_KEY is not configured")
+        return {
+            "Authorization": f"Bearer {settings.MISTRAL_API_KEY}",
+            "content-type": "application/json",
+        }
+    elif provider == Provider.DEEPSEEK:
+        if not settings.DEEPSEEK_API_KEY:
+            raise HTTPException(status_code=400, detail="DEEPSEEK_API_KEY is not configured")
+        return {
+            "Authorization": f"Bearer {settings.DEEPSEEK_API_KEY}",
+            "content-type": "application/json",
+        }
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported provider: {provider}")
 
 async def forward_request(model: str, payload: dict) -> tuple[dict, int, float]:
     provider = get_provider_from_model(model)

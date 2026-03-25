@@ -42,6 +42,17 @@ Conduit works anywhere you control the code making the API call. Your API keys a
 ✅ Cursor, Windsurf, VS Code AI extensions  
 ✅ Any tool that supports a custom base URL and API key  
 
+## Supported Providers
+
+| Provider | Models | API Key Required |
+|----------|--------|-----------------|
+| Anthropic | claude-sonnet-4-6, claude-opus-4-6, claude-haiku-4-5-20251001 | `ANTHROPIC_API_KEY` |
+| OpenAI | gpt-5.4, gpt-5, gpt-4o, gpt-4.1 and variants | `OPENAI_API_KEY` |
+| Mistral | mistral-large-latest, mistral-small-latest | `MISTRAL_API_KEY` |
+| DeepSeek | deepseek-chat, deepseek-reasoner | `DEEPSEEK_API_KEY` |
+
+Only add the API keys for providers you actually use. Conduit will return a clear error if you try to use a model whose provider key isn't configured.
+
 ### One key per project
 
 Each Conduit API key is assigned to a project at creation. All requests made with that key are automatically attributed to that project — no headers needed.
